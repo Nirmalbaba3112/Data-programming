@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>XML CONVERSION TOOL</title>
+	<meta charset="utf-8">
+	<!-- //ADD ON LIBRARY - BOOTSTRAP , CSS -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" ></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" ></script>
+</head>
+<body>
+	 <!-- CONTAINER CLASS -->
+	<div class="container">
+		<div class="jumbotron"> <!-- jumbotron - a big box - a grey box with rounded corners to display special content or information. -->
+			<h1 class="display-4">XML TO JSON</h1>
+			<p class="lead">Convert XMl TO JSON.</p>
+			<hr class="my-4">
+		</div>
+		<div class="row">
+		<div class="col-sm-6">
+			<!-- NEW XML FORM -->	
+				<form id="formOfXMLText"> 
+					<div class="form-group">
+						<!-- //TEXTBOX TO DISPLAY XML DATA - JSON TO XML - multiline text area -->
+						<label for="xmlDisplay"><h2>Input XML Data</h2></label>
+						<textarea class="form-control" id="xmlTextDisplay" rows="18"></textarea>
+					</div>
+					
+					<div class="form-group">
+					<!-- CONVERT BUTTON ON FORM TYPE SUBMIT -->
+					<button type="submit" class="btn btn-primary">CONVERT TO JSON</button> 
+						
+					</div>
+					<div class="alert alert-primary" role="alert" id="messageTOUser" style="display: none;">
+						Use XML Formatter - <a target="_blank" href="https://www.freeformatter.com/xml-formatter.html" class="alert-link">click here!!</a>
+					</div>
+				</div>
+				</form>
+			<div class="col-sm-6">
+						
+					<div class="form-group">
+						<!-- INPUT TEXTBOX - JSON DATA - multiline text area -->
+						<label for="jsonTextarea"><h2>JSON Data</h2></label>
+						<textarea class="form-control" id="jsonTextarea" rows="18"></textarea>
+					</div>
+					
+				</div>
+				
+		</div>
+	</body>
+	<script type="text/javascript">
+		
+		
+	$('#formOfXMLText').submit(function(e){
+		e.preventDefault();
+		
+		var xmldata = $('#xmlTextDisplay').val();	// grab value from text area with id xmlTextDisplay
+		try {
+			
+			var parser = new DOMParser();
+			
+			var xml = parser.parseFromString(xmldata, "text/xml");
+			
+			var jsonText = JSON.stringify(xmltoJson(xml)); // xmlDoc = xml dom document
+			
+			$("#jsonTextarea").val(jsonText);
+			
+		}catch (err) {
+			alert('Invalid json' + err);
+		}
+	});
+	
+	function xmltoJson(xml){
+			
+	// Create the return object
+	var obj = {};
+
+	if (xml.nodeType == 1) { // element
+		// do attributes
+		if (xml.attributes.length > 0) {
+		obj["@attributes"] = {};
+			for (var j = 0; j < xml.attributes.length; j++) {
+				var attribute = xml.attributes.item(j);
+				obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+			}
+		}
+	} else if (xml.nodeType == 3) { // text
+		obj = xml.nodeValue;
+	}
+
+	// do children
+	if (xml.hasChildNodes()) {
+		for(var i = 0; i < xml.childNodes.length; i++) {
+			var item = xml.childNodes.item(i);
+			var nodeName = item.nodeName;
+			if (typeof(obj[nodeName]) == "undefined") {
+				obj[nodeName] = xmltoJson(item);
+			} else {
+				if (typeof(obj[nodeName].push) == "undefined") {
+					var old = obj[nodeName];
+					obj[nodeName] = [];
+					obj[nodeName].push(old);
+				}
+				obj[nodeName].push(xmltoJson(item));
+			}
+		}
+	}
+	return obj;
+};
+	
+	
+</script>
+</html>
